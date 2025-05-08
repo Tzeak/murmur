@@ -143,8 +143,23 @@ function Feed({ posts, onNewPost }) {
         const response = await fetch(`/api/export?start=${startDate}`);
         const { content } = await response.json();
 
+        // Create a temporary textarea element
+        const textarea = document.createElement("textarea");
+        textarea.value = content;
+        textarea.style.position = "fixed"; // Prevent scrolling to bottom
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
         try {
-          await navigator.clipboard.writeText(content);
+          // Try the modern clipboard API first
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(content);
+          } else {
+            // Fallback for Safari and non-HTTPS contexts
+            document.execCommand("copy");
+          }
           setSnackbarMessage("Copied to clipboard and opening Obsidian...");
           setSnackbarSeverity("success");
           window.location.href =
@@ -155,6 +170,9 @@ function Feed({ posts, onNewPost }) {
           );
           setSnackbarSeverity("warning");
           alert(content);
+        } finally {
+          // Clean up
+          document.body.removeChild(textarea);
         }
       } else {
         // Use selected date range
@@ -175,8 +193,23 @@ function Feed({ posts, onNewPost }) {
         const response = await fetch(url);
         const { content } = await response.json();
 
+        // Create a temporary textarea element
+        const textarea = document.createElement("textarea");
+        textarea.value = content;
+        textarea.style.position = "fixed"; // Prevent scrolling to bottom
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
         try {
-          await navigator.clipboard.writeText(content);
+          // Try the modern clipboard API first
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(content);
+          } else {
+            // Fallback for Safari and non-HTTPS contexts
+            document.execCommand("copy");
+          }
           setSnackbarMessage("Copied to clipboard and opening Obsidian...");
           setSnackbarSeverity("success");
           window.location.href =
@@ -187,6 +220,9 @@ function Feed({ posts, onNewPost }) {
           );
           setSnackbarSeverity("warning");
           alert(content);
+        } finally {
+          // Clean up
+          document.body.removeChild(textarea);
         }
       }
 
