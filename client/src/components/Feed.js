@@ -143,37 +143,105 @@ function Feed({ posts, onNewPost }) {
         const response = await fetch(`/api/export?start=${startDate}`);
         const { content } = await response.json();
 
-        // Create a temporary textarea element
+        // Prevent body scrolling
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+        document.body.style.overflow = "hidden";
+
+        // Create overlay
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.right = "0";
+        overlay.style.bottom = "0";
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        overlay.style.zIndex = "9998";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        document.body.appendChild(overlay);
+
+        // Create container for textarea and button
+        const container = document.createElement("div");
+        container.style.position = "fixed";
+        container.style.top = "50%";
+        container.style.left = "50%";
+        container.style.transform = "translate(-50%, -50%)";
+        container.style.width = "80%";
+        container.style.maxWidth = "600px";
+        container.style.backgroundColor = theme.palette.background.paper;
+        container.style.borderRadius = "8px";
+        container.style.boxShadow = "0 4px 20px rgba(0,0,0,0.2)";
+        container.style.padding = "20px";
+        container.style.zIndex = "9999";
+        document.body.appendChild(container);
+
+        // Create textarea
         const textarea = document.createElement("textarea");
         textarea.value = content;
-        textarea.style.position = "fixed"; // Prevent scrolling to bottom
-        textarea.style.opacity = "0";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
+        textarea.style.width = "100%";
+        textarea.style.height = "200px";
+        textarea.style.padding = "12px";
+        textarea.style.marginBottom = "16px";
+        textarea.style.borderRadius = "4px";
+        textarea.style.border = `1px solid ${theme.palette.divider}`;
+        textarea.style.backgroundColor = theme.palette.background.default;
+        textarea.style.color = theme.palette.text.primary;
+        textarea.style.fontFamily = "inherit";
+        textarea.style.fontSize = "14px";
+        textarea.style.lineHeight = "1.5";
+        textarea.style.resize = "none";
+        container.appendChild(textarea);
 
-        try {
-          // Try the modern clipboard API first
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(content);
-          } else {
-            // Fallback for Safari and non-HTTPS contexts
-            document.execCommand("copy");
-          }
-          setSnackbarMessage("Copied to clipboard and opening Obsidian...");
-          setSnackbarSeverity("success");
+        // Create button
+        const button = document.createElement("button");
+        button.textContent = "Open in Obsidian";
+        button.style.width = "100%";
+        button.style.padding = "12px";
+        button.style.backgroundColor = theme.palette.primary.main;
+        button.style.color = "white";
+        button.style.border = "none";
+        button.style.borderRadius = "4px";
+        button.style.fontSize = "16px";
+        button.style.fontWeight = "500";
+        button.style.cursor = "pointer";
+        button.style.transition = "background-color 0.2s";
+        button.style.fontFamily = "inherit";
+        container.appendChild(button);
+
+        // Add hover effect
+        button.onmouseover = () => {
+          button.style.backgroundColor = theme.palette.primary.dark;
+        };
+        button.onmouseout = () => {
+          button.style.backgroundColor = theme.palette.primary.main;
+        };
+
+        // Focus and select the text without scrolling
+        setTimeout(() => {
+          textarea.focus();
+          textarea.select();
+        }, 0);
+
+        // Add click handler to button
+        button.onclick = () => {
+          document.body.style.overflow = originalStyle;
+          document.body.removeChild(overlay);
+          document.body.removeChild(container);
           window.location.href =
             "obsidian://daily?vault=🧠&append=true&clipboard=true";
-        } catch (clipboardError) {
-          setSnackbarMessage(
-            "Please copy the content manually and paste it into Obsidian"
-          );
-          setSnackbarSeverity("warning");
-          alert(content);
-        } finally {
-          // Clean up
-          document.body.removeChild(textarea);
-        }
+        };
+
+        // Add click handler to overlay
+        overlay.onclick = () => {
+          document.body.style.overflow = originalStyle;
+          document.body.removeChild(overlay);
+          document.body.removeChild(container);
+        };
+
+        setSnackbarMessage("Text selected - press Cmd+C to copy");
+        setSnackbarSeverity("info");
+        setShowSnackbar(true);
       } else {
         // Use selected date range
         let url = "/api/export";
@@ -193,40 +261,107 @@ function Feed({ posts, onNewPost }) {
         const response = await fetch(url);
         const { content } = await response.json();
 
-        // Create a temporary textarea element
+        // Prevent body scrolling
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+        document.body.style.overflow = "hidden";
+
+        // Create overlay
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.right = "0";
+        overlay.style.bottom = "0";
+        overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        overlay.style.zIndex = "9998";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        document.body.appendChild(overlay);
+
+        // Create container for textarea and button
+        const container = document.createElement("div");
+        container.style.position = "fixed";
+        container.style.top = "50%";
+        container.style.left = "50%";
+        container.style.transform = "translate(-50%, -50%)";
+        container.style.width = "80%";
+        container.style.maxWidth = "600px";
+        container.style.backgroundColor = theme.palette.background.paper;
+        container.style.borderRadius = "8px";
+        container.style.boxShadow = "0 4px 20px rgba(0,0,0,0.2)";
+        container.style.padding = "20px";
+        container.style.zIndex = "9999";
+        document.body.appendChild(container);
+
+        // Create textarea
         const textarea = document.createElement("textarea");
         textarea.value = content;
-        textarea.style.position = "fixed"; // Prevent scrolling to bottom
-        textarea.style.opacity = "0";
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
+        textarea.style.width = "100%";
+        textarea.style.height = "200px";
+        textarea.style.padding = "12px";
+        textarea.style.marginBottom = "16px";
+        textarea.style.borderRadius = "4px";
+        textarea.style.border = `1px solid ${theme.palette.divider}`;
+        textarea.style.backgroundColor = theme.palette.background.default;
+        textarea.style.color = theme.palette.text.primary;
+        textarea.style.fontFamily = "inherit";
+        textarea.style.fontSize = "14px";
+        textarea.style.lineHeight = "1.5";
+        textarea.style.resize = "none";
+        container.appendChild(textarea);
 
-        try {
-          // Try the modern clipboard API first
-          if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(content);
-          } else {
-            // Fallback for Safari and non-HTTPS contexts
-            document.execCommand("copy");
-          }
-          setSnackbarMessage("Copied to clipboard and opening Obsidian...");
-          setSnackbarSeverity("success");
+        // Create button
+        const button = document.createElement("button");
+        button.textContent = "Open in Obsidian";
+        button.style.width = "100%";
+        button.style.padding = "12px";
+        button.style.backgroundColor = theme.palette.primary.main;
+        button.style.color = "white";
+        button.style.border = "none";
+        button.style.borderRadius = "4px";
+        button.style.fontSize = "16px";
+        button.style.fontWeight = "500";
+        button.style.cursor = "pointer";
+        button.style.transition = "background-color 0.2s";
+        button.style.fontFamily = "inherit";
+        container.appendChild(button);
+
+        // Add hover effect
+        button.onmouseover = () => {
+          button.style.backgroundColor = theme.palette.primary.dark;
+        };
+        button.onmouseout = () => {
+          button.style.backgroundColor = theme.palette.primary.main;
+        };
+
+        // Focus and select the text without scrolling
+        setTimeout(() => {
+          textarea.focus();
+          textarea.select();
+        }, 0);
+
+        // Add click handler to button
+        button.onclick = () => {
+          document.body.style.overflow = originalStyle;
+          document.body.removeChild(overlay);
+          document.body.removeChild(container);
           window.location.href =
             "obsidian://daily?vault=🧠&append=true&clipboard=true";
-        } catch (clipboardError) {
-          setSnackbarMessage(
-            "Please copy the content manually and paste it into Obsidian"
-          );
-          setSnackbarSeverity("warning");
-          alert(content);
-        } finally {
-          // Clean up
-          document.body.removeChild(textarea);
-        }
+        };
+
+        // Add click handler to overlay
+        overlay.onclick = () => {
+          document.body.style.overflow = originalStyle;
+          document.body.removeChild(overlay);
+          document.body.removeChild(container);
+        };
+
+        setSnackbarMessage("Text selected - press Cmd+C to copy");
+        setSnackbarSeverity("info");
+        setShowSnackbar(true);
       }
 
-      setShowSnackbar(true);
       setShowDatePicker(false);
     } catch (error) {
       console.error("Error exporting posts:", error);
