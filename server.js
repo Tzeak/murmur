@@ -74,7 +74,11 @@ app.get("/api/export", (req, res) => {
       });
     }
 
-    const content = posts.map((post) => `• ${post.content}`).join("\n");
+    // Reverse the order of posts and change bullet points to hyphens
+    const content = posts
+      .reverse()
+      .map((post) => `- ${post.content}`)
+      .join("\n");
     res.json({ content });
   } catch (error) {
     console.error("Error exporting posts:", error);
