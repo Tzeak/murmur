@@ -16,13 +16,13 @@ if (NODE_ENV === "production") {
 }
 
 // API Routes
-app.post("/api/posts", (req, res) => {
+app.post("/api/posts", async (req, res) => {
   try {
     const { content } = req.body;
     if (!content) {
       return res.status(400).json({ error: "Content is required" });
     }
-    const postId = db.createPost(content);
+    const postId = await db.createPost(content);
     res.status(201).json({ id: postId, content });
   } catch (error) {
     console.error("Error creating post:", error);
@@ -30,9 +30,9 @@ app.post("/api/posts", (req, res) => {
   }
 });
 
-app.get("/api/posts", (req, res) => {
+app.get("/api/posts", async (req, res) => {
   try {
-    const posts = db.getAllPosts();
+    const posts = await db.getAllPosts();
     res.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
@@ -40,10 +40,10 @@ app.get("/api/posts", (req, res) => {
   }
 });
 
-app.get("/api/export", (req, res) => {
+app.get("/api/export", async (req, res) => {
   try {
     const { start, end } = req.query;
-    let posts = db.getAllPosts();
+    let posts = await db.getAllPosts();
 
     // Filter by date range if provided
     if (start || end) {
